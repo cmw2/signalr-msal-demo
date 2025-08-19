@@ -7,16 +7,17 @@ This is a demo application for exploring options for calling downstream APIs fro
 ## Environment Setup
 
 ### .NET 9 Installation
-- **CRITICAL**: This project targets .NET 9. The environment currently has .NET 8.0.118 installed.
-- Install .NET 9 SDK before proceeding:
+- **CRITICAL**: This project targets .NET 9. The environment currently has .NET 8 installed.
+- Use .NET 9 SDK.
+- If it’s not available in the environment, add this step to your GitHub Actions workflow::
   ```bash
-  # Download and install .NET 9 SDK using official installer
-  curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 9.0
-  export DOTNET_ROOT=$HOME/.dotnet
-  export PATH=$PATH:$HOME/.dotnet
+  - name: Setup .NET 9
+    uses: actions/setup-dotnet@v4
+    with:
+      dotnet-version: '9.0.x'
   ```
 - Verify installation: `dotnet --version` should show 9.0.x
-- **NOTE**: Latest available version is 9.0.303 (as of validation date)
+
 
 ### Required SDKs and Tools
 - .NET 9 SDK (see above)
