@@ -1,14 +1,23 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>27fb29ca-266a-44f2-954a-4f29119b2706</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Identity.Web" Version="3.13.1" />
-    <PackageReference Include="Microsoft.Identity.Web.UI" Version="3.13.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.3" />
+    <PackageReference Include="Microsoft.Identity.Web" Version="3.13.2" />
+    <PackageReference Include="Microsoft.Identity.Web.DownstreamApi" Version="3.8.1" />
+    <PackageReference Include="Microsoft.Identity.Web.MicrosoftGraph" Version="3.8.1" />
+    <PackageReference Include="Microsoft.Identity.Web.UI" Version="3.13.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Pages\" />
   </ItemGroup>
 
 </Project>

@@ -27,9 +27,7 @@ public class ApiService
                 return "Configuration missing for APINoGraph";
             }
             
-            var scopes = new[] { scopeConfig };
-            
-            var accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
+            var accessToken = await _tokenAcquisition.GetAccessTokenForAppAsync(scopeConfig);
             _httpClient.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
             
@@ -66,7 +64,8 @@ public class ApiService
             _httpClient.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
             
-            var response = await _httpClient.GetAsync($"{baseUrl}/api/manager");
+            // Updated endpoint to match ProfileController
+            var response = await _httpClient.GetAsync($"{baseUrl}/api/profile/mobile-greeting");
             
             if (response.IsSuccessStatusCode)
             {

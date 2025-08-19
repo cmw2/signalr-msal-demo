@@ -5,7 +5,7 @@ namespace APINoGraph.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+[Authorize(Roles = "APINoGraph.ApiAccess")]
 public class HelloController : ControllerBase
 {
     [HttpGet]

@@ -14,6 +14,7 @@ builder.Services.AddControllersWithViews()
     .AddMicrosoftIdentityUI();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<ApiService>();
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 

@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "identityapp1": {
+      "connectionInfo": "App registration: APINoGraph, Tenant: cmwexternal (cmwexternal.onmicrosoft.com - Microsoft Entra External ID)",
+      "type": "identityapp.default"
+    }
+  }
+}
