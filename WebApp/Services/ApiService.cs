@@ -1,13 +1,17 @@
+using Microsoft.Identity.Web;
+
 namespace WebApp.Services;
 
 public class ApiService
 {
     private readonly HttpClient _httpClient;
+    private readonly ITokenAcquisition _tokenAcquisition;
     private readonly IConfiguration _configuration;
 
-    public ApiService(HttpClient httpClient, IConfiguration configuration)
+    public ApiService(HttpClient httpClient, ITokenAcquisition tokenAcquisition, IConfiguration configuration)
     {
         _httpClient = httpClient;
+        _tokenAcquisition = tokenAcquisition;
         _configuration = configuration;
     }
 
@@ -16,6 +20,19 @@ public class ApiService
         try
         {
             var baseUrl = _configuration["APIEndpoints:APINoGraphBaseUrl"];
+            var scopeConfig = _configuration["DownstreamApis:APINoGraph:Scopes"];
+            
+            if (string.IsNullOrEmpty(baseUrl) || string.IsNullOrEmpty(scopeConfig))
+            {
+                return "Configuration missing for APINoGraph";
+            }
+            
+            var scopes = new[] { scopeConfig };
+            
+            var accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
+            _httpClient.DefaultRequestHeaders.Authorization = 
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            
             var response = await _httpClient.GetAsync($"{baseUrl}/api/hello");
             
             if (response.IsSuccessStatusCode)
@@ -31,24 +48,36 @@ public class ApiService
         }
     }
 
-    public Task<string> CallAPIWithGraphAsync()
+    public async Task<string> CallAPIWithGraphAsync()
     {
         try
         {
-            // TODO: Implement token acquisition and protected API call
-            // This would require proper authentication flow to be set up
             var baseUrl = _configuration["APIEndpoints:APIWithGraphBaseUrl"];
+            var scopeConfig = _configuration["DownstreamApis:APIWithGraph:Scopes"];
             
-            // Placeholder for now - in real implementation, you would:
-            // 1. Acquire access token for the API
-            // 2. Add Authorization header
-            // 3. Make the API call
+            if (string.IsNullOrEmpty(baseUrl) || string.IsNullOrEmpty(scopeConfig))
+            {
+                return "Configuration missing for APIWithGraph";
+            }
             
-            return Task.FromResult("Placeholder for APIWithGraph call - requires proper authentication setup");
+            var scopes = new[] { scopeConfig };
+            
+            var accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
+            _httpClient.DefaultRequestHeaders.Authorization = 
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            
+            var response = await _httpClient.GetAsync($"{baseUrl}/api/manager");
+            
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadAsStringAsync();
+            }
+            
+            return $"Error: {response.StatusCode}";
         }
         catch (Exception ex)
         {
-            return Task.FromResult($"Exception: {ex.Message}");
+            return $"Exception: {ex.Message}";
         }
     }
 }
