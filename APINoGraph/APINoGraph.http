@@ -1,0 +1,6 @@
+@APINoGraph_HostAddress = http://localhost:5277
+
+GET {{APINoGraph_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
