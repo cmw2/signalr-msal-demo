@@ -1,6 +1,6 @@
 @APIWithGraph_HostAddress = http://localhost:5066
 
-GET {{APIWithGraph_HostAddress}}/weatherforecast/
+GET {{APIWithGraph_HostAddress}}/api/Manager/
 Accept: application/json
 
 ###
