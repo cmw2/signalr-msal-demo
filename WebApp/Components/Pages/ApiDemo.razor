@@ -1,0 +1,112 @@
+@page "/api-demo"
+@using WebApp.Services
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Identity.Web.UI
+@inject ApiService ApiService
+@rendermode InteractiveServer
+@attribute [Authorize]
+
+<PageTitle>API Demo</PageTitle>
+
+<h1>API Demo</h1>
+
+<p>This page demonstrates calling the two APIs from the Blazor web app.</p>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3>APINoGraph</h3>
+            </div>
+            <div class="card-body">
+                <button class="btn btn-primary" @onclick="CallAPINoGraph" disabled="@isLoadingNoGraph">
+                    @if (isLoadingNoGraph)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        <span>Loading...</span>
+                    }
+                    else
+                    {
+                        <span>Call APINoGraph</span>
+                    }
+                </button>
+                
+                @if (!string.IsNullOrEmpty(noGraphResult))
+                {
+                    <div class="mt-3">
+                        <strong>Result:</strong>
+                        <div class="alert alert-info">@noGraphResult</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3>APIWithGraph</h3>
+            </div>
+            <div class="card-body">
+                <button class="btn btn-primary" @onclick="CallAPIWithGraph" disabled="@isLoadingWithGraph">
+                    @if (isLoadingWithGraph)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        <span>Loading...</span>
+                    }
+                    else
+                    {
+                        <span>Call APIWithGraph</span>
+                    }
+                </button>
+                
+                @if (!string.IsNullOrEmpty(withGraphResult))
+                {
+                    <div class="mt-3">
+                        <strong>Result:</strong>
+                        <div class="alert alert-info">@withGraphResult</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string? noGraphResult;
+    private string? withGraphResult;
+    private bool isLoadingNoGraph = false;
+    private bool isLoadingWithGraph = false;
+
+    private async Task CallAPINoGraph()
+    {
+        isLoadingNoGraph = true;
+        StateHasChanged();
+        
+        try
+        {
+            noGraphResult = await ApiService.CallAPINoGraphAsync();
+        }
+        finally
+        {
+            isLoadingNoGraph = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CallAPIWithGraph()
+    {
+        isLoadingWithGraph = true;
+        StateHasChanged();
+        
+        try
+        {
+            withGraphResult = await ApiService.CallAPIWithGraphAsync();
+        }
+        finally
+        {
+            isLoadingWithGraph = false;
+            StateHasChanged();
+        }
+    }
+}
