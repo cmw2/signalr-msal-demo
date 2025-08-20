@@ -5,10 +5,16 @@ using Microsoft.Identity.Web.UI;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("Redis");
+    // options.InstanceName = "cmw2-redis:"; // Optional, for key prefixing
+});
+
 // Add services to the container.
 builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration, "AzureAd")
     .EnableTokenAcquisitionToCallDownstreamApi()
-    .AddInMemoryTokenCaches();
+    .AddDistributedTokenCaches();
 
 builder.Services.AddControllersWithViews()
     .AddMicrosoftIdentityUI();
