@@ -1,8 +1,12 @@
 @page "/api-demo"
+@using System.Security.Claims
 @using WebApp.Services
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.Identity.Web.UI
 @inject ApiService ApiService
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
 @rendermode InteractiveServer
 @attribute [Authorize]
 
@@ -59,7 +63,6 @@
                         <span>Call APIWithGraph</span>
                     }
                 </button>
-                
                 @if (!string.IsNullOrEmpty(withGraphResult))
                 {
                     <div class="mt-3">
@@ -77,6 +80,16 @@
     private string? withGraphResult;
     private bool isLoadingNoGraph = false;
     private bool isLoadingWithGraph = false;
+    private ClaimsPrincipal? user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        user = authState.User;
+        bool isAuthenticated = user.Identity?.IsAuthenticated == true;
+        string? name = user.Identity?.Name;
+        // You can inspect user.Claims here
+    }
 
     private async Task CallAPINoGraph()
     {
@@ -102,6 +115,17 @@
         try
         {
             withGraphResult = await ApiService.CallAPIWithGraphAsync();
+        }
+        catch (Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException)
+        {
+            // Redirect to ConsentController to trigger incremental consent
+            NavigationManager.NavigateTo("/Consent/ApiWithGraph", forceLoad: true);
+            return;
+        }
+        catch (Exception ex)
+        {
+            // Handle other exceptions, e.g., show an error message
+            withGraphResult = $"Error: {ex.Message}";
         }
         finally
         {

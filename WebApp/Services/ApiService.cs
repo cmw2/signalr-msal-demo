@@ -46,7 +46,7 @@ public class ApiService
         }
     }
 
-    public async Task<string> CallAPIWithGraphAsync()
+    public async Task<string> CallAPIWithGraphAsync(Func<Task>? onMsalUiRequired = null)
     {
         try
         {
@@ -64,7 +64,6 @@ public class ApiService
             _httpClient.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
             
-            // Updated endpoint to match ProfileController
             var response = await _httpClient.GetAsync($"{baseUrl}/api/profile/mobile-greeting");
             
             if (response.IsSuccessStatusCode)
@@ -73,6 +72,15 @@ public class ApiService
             }
             
             return $"Error: {response.StatusCode}";
+        }
+        catch (Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException)
+        {
+            if (onMsalUiRequired != null)
+            {
+                await onMsalUiRequired();
+                return string.Empty;
+            }
+            throw;
         }
         catch (Exception ex)
         {
