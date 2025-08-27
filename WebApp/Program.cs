@@ -15,12 +15,15 @@ builder.Services.AddSignalR().AddAzureSignalR(builder.Configuration.GetConnectio
 // Add services to the container.
 builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration, "AzureAd")
     .EnableTokenAcquisitionToCallDownstreamApi()
+    .AddDownstreamApi("APINoGraph", builder.Configuration.GetSection("DownstreamApis:APINoGraph"))
+    .AddDownstreamApi("APIWithGraph", builder.Configuration.GetSection("DownstreamApis:APIWithGraph"))
     .AddDistributedTokenCaches();
 
 builder.Services.AddControllersWithViews()
     .AddMicrosoftIdentityUI();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<ApiService>();
+builder.Services.AddScoped<DownstreamApiService>();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

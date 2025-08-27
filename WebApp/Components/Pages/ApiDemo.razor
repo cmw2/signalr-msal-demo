@@ -4,6 +4,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.Identity.Web.UI
 @inject ApiService ApiService
+@inject DownstreamApiService DownstreamApiService
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
@@ -23,7 +24,7 @@
                 <h3>APINoGraph</h3>
             </div>
             <div class="card-body">
-                <button class="btn btn-primary" @onclick="CallAPINoGraph" disabled="@isLoadingNoGraph">
+                <button class="btn btn-primary mb-2 w-100" @onclick="CallAPINoGraph" disabled="@isLoadingNoGraph">
                     @if (isLoadingNoGraph)
                     {
                         <span class="spinner-border spinner-border-sm me-2" role="status"></span>
@@ -31,17 +32,32 @@
                     }
                     else
                     {
-                        <span>Call APINoGraph</span>
+                        <span>Call APINoGraph (Manual Token)</span>
                     }
                 </button>
-                
-                @if (!string.IsNullOrEmpty(noGraphResult))
-                {
-                    <div class="mt-3">
-                        <strong>Result:</strong>
+                <div class="mb-3">
+                    @if (!string.IsNullOrEmpty(noGraphResult))
+                    {
                         <div class="alert alert-info">@noGraphResult</div>
-                    </div>
-                }
+                    }
+                </div>
+                <button class="btn btn-primary mb-2 w-100" @onclick="CallAPINoGraphDownstream" disabled="@isLoadingNoGraphForApp">
+                    @if (isLoadingNoGraphForApp)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        <span>Loading...</span>
+                    }
+                    else
+                    {
+                        <span>Call APINoGraph (DownstreamApi ForApp)</span>
+                    }
+                </button>
+                <div class="mb-3">
+                    @if (!string.IsNullOrEmpty(noGraphDownstreamResult))
+                    {
+                        <div class="alert alert-info">@noGraphDownstreamResult</div>
+                    }
+                </div>
             </div>
         </div>
     </div>
@@ -52,7 +68,7 @@
                 <h3>APIWithGraph</h3>
             </div>
             <div class="card-body">
-                <button class="btn btn-primary" @onclick="CallAPIWithGraph" disabled="@isLoadingWithGraph">
+                <button class="btn btn-primary mb-2 w-100" @onclick="CallAPIWithGraph" disabled="@isLoadingWithGraph">
                     @if (isLoadingWithGraph)
                     {
                         <span class="spinner-border spinner-border-sm me-2" role="status"></span>
@@ -60,16 +76,32 @@
                     }
                     else
                     {
-                        <span>Call APIWithGraph</span>
+                        <span>Call APIWithGraph (Manual Token)</span>
                     }
                 </button>
-                @if (!string.IsNullOrEmpty(withGraphResult))
-                {
-                    <div class="mt-3">
-                        <strong>Result:</strong>
+                <div class="mb-3">
+                    @if (!string.IsNullOrEmpty(withGraphResult))
+                    {
                         <div class="alert alert-info">@withGraphResult</div>
-                    </div>
-                }
+                    }
+                </div>
+                <button class="btn btn-primary mb-2 w-100" @onclick="CallAPIWithGraphDownstream" disabled="@isLoadingWithGraphForUser">
+                    @if (isLoadingWithGraphForUser)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        <span>Loading...</span>
+                    }
+                    else
+                    {
+                        <span>Call APIWithGraph (DownstreamApi ForUser)</span>
+                    }
+                </button>
+                <div class="mb-3">
+                    @if (!string.IsNullOrEmpty(withGraphDownstreamResult))
+                    {
+                        <div class="alert alert-info">@withGraphDownstreamResult</div>
+                    }
+                </div>
             </div>
         </div>
     </div>
@@ -77,25 +109,25 @@
 
 @code {
     private string? noGraphResult;
+    private string? noGraphDownstreamResult;
     private string? withGraphResult;
+    private string? withGraphDownstreamResult;
     private bool isLoadingNoGraph = false;
+    private bool isLoadingNoGraphForApp = false;
     private bool isLoadingWithGraph = false;
+    private bool isLoadingWithGraphForUser = false;
     private ClaimsPrincipal? user;
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         user = authState.User;
-        bool isAuthenticated = user.Identity?.IsAuthenticated == true;
-        string? name = user.Identity?.Name;
-        // You can inspect user.Claims here
     }
 
     private async Task CallAPINoGraph()
     {
         isLoadingNoGraph = true;
         StateHasChanged();
-        
         try
         {
             noGraphResult = await ApiService.CallAPINoGraphAsync();
@@ -107,29 +139,56 @@
         }
     }
 
+    private async Task CallAPINoGraphDownstream()
+    {
+        isLoadingNoGraphForApp = true;
+        StateHasChanged();
+        try
+        {
+            noGraphDownstreamResult = await DownstreamApiService.CallAPINoGraphAsync();
+        }
+        finally
+        {
+            isLoadingNoGraphForApp = false;
+            StateHasChanged();
+        }
+    }
+
     private async Task CallAPIWithGraph()
     {
         isLoadingWithGraph = true;
         StateHasChanged();
-        
         try
         {
             withGraphResult = await ApiService.CallAPIWithGraphAsync();
         }
         catch (Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException)
         {
-            // Redirect to ConsentController to trigger incremental consent
             NavigationManager.NavigateTo("/Consent/ApiWithGraph", forceLoad: true);
             return;
         }
         catch (Exception ex)
         {
-            // Handle other exceptions, e.g., show an error message
             withGraphResult = $"Error: {ex.Message}";
         }
         finally
         {
             isLoadingWithGraph = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CallAPIWithGraphDownstream()
+    {
+        isLoadingWithGraphForUser = true;
+        StateHasChanged();
+        try
+        {
+            withGraphDownstreamResult = await DownstreamApiService.CallAPIWithGraphAsync();
+        }
+        finally
+        {
+            isLoadingWithGraphForUser = false;
             StateHasChanged();
         }
     }

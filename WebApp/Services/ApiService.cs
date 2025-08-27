@@ -20,14 +20,14 @@ public class ApiService
         try
         {
             var baseUrl = _configuration["APIEndpoints:APINoGraphBaseUrl"];
-            var scopeConfig = _configuration["DownstreamApis:APINoGraph:Scopes"];
+            var scopes = _configuration.GetSection("DownstreamApis:APINoGraph:Scopes").Get<string[]>();
             
-            if (string.IsNullOrEmpty(baseUrl) || string.IsNullOrEmpty(scopeConfig))
+            if (string.IsNullOrEmpty(baseUrl) || scopes == null || scopes.Length == 0)
             {
                 return "Configuration missing for APINoGraph";
             }
             
-            var accessToken = await _tokenAcquisition.GetAccessTokenForAppAsync(scopeConfig);
+            var accessToken = await _tokenAcquisition.GetAccessTokenForAppAsync(scopes[0]);
             _httpClient.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
             
@@ -51,14 +51,12 @@ public class ApiService
         try
         {
             var baseUrl = _configuration["APIEndpoints:APIWithGraphBaseUrl"];
-            var scopeConfig = _configuration["DownstreamApis:APIWithGraph:Scopes"];
+            var scopes = _configuration.GetSection("DownstreamApis:APIWithGraph:Scopes").Get<string[]>();
             
-            if (string.IsNullOrEmpty(baseUrl) || string.IsNullOrEmpty(scopeConfig))
+            if (string.IsNullOrEmpty(baseUrl) || scopes == null || scopes.Length == 0)
             {
                 return "Configuration missing for APIWithGraph";
             }
-            
-            var scopes = new[] { scopeConfig };
             
             var accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
             _httpClient.DefaultRequestHeaders.Authorization = 
