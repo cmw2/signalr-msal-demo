@@ -2,7 +2,7 @@ using Microsoft.Identity.Web;
 
 namespace WebApp.Services;
 
-public class ApiServiceWithHandler  
+public class ApiServiceWithHandler
 {
     private readonly HttpClient _appHttpClient;
     private readonly HttpClient _userHttpClient;
@@ -22,12 +22,12 @@ public class ApiServiceWithHandler
         try
         {
             var response = await _appHttpClient.GetAsync("api/hello");
-            
+
             if (response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadAsStringAsync();
             }
-            
+
             return $"Error: {response.StatusCode}";
         }
         catch (Exception ex)
@@ -41,12 +41,12 @@ public class ApiServiceWithHandler
         try
         {
             var response = await _userHttpClient.GetAsync("api/profile/mobile-greeting");
-            
+
             if (response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadAsStringAsync();
             }
-            
+
             return $"Error: {response.StatusCode}";
         }
         catch (Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException)
