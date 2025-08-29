@@ -5,6 +5,7 @@
 @using Microsoft.Identity.Web.UI
 @inject ApiService ApiService
 @inject DownstreamApiService DownstreamApiService
+@inject ApiServiceWithHandler ApiServiceWithHandler
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
@@ -58,6 +59,23 @@
                         <div class="alert alert-info">@noGraphDownstreamResult</div>
                     }
                 </div>
+                <button class="btn btn-primary mb-2 w-100" @onclick="CallAPINoGraphWithHandler" disabled="@isLoadingNoGraphWithHandler">
+                    @if (isLoadingNoGraphWithHandler)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        <span>Loading...</span>
+                    }
+                    else
+                    {
+                        <span>Call APINoGraph (HttpClient Handler)</span>
+                    }
+                </button>
+                <div class="mb-3">
+                    @if (!string.IsNullOrEmpty(noGraphWithHandlerResult))
+                    {
+                        <div class="alert alert-info">@noGraphWithHandlerResult</div>
+                    }
+                </div>
             </div>
         </div>
     </div>
@@ -102,6 +120,23 @@
                         <div class="alert alert-info">@withGraphDownstreamResult</div>
                     }
                 </div>
+                <button class="btn btn-primary mb-2 w-100" @onclick="CallAPIWithGraphWithHandler" disabled="@isLoadingWithGraphWithHandler">
+                    @if (isLoadingWithGraphWithHandler)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        <span>Loading...</span>
+                    }
+                    else
+                    {
+                        <span>Call APIWithGraph (HttpClient Handler)</span>
+                    }
+                </button>
+                <div class="mb-3">
+                    @if (!string.IsNullOrEmpty(withGraphWithHandlerResult))
+                    {
+                        <div class="alert alert-info">@withGraphWithHandlerResult</div>
+                    }
+                </div>
             </div>
         </div>
     </div>
@@ -110,12 +145,16 @@
 @code {
     private string? noGraphResult;
     private string? noGraphDownstreamResult;
+    private string? noGraphWithHandlerResult;
     private string? withGraphResult;
     private string? withGraphDownstreamResult;
+    private string? withGraphWithHandlerResult;
     private bool isLoadingNoGraph = false;
     private bool isLoadingNoGraphForApp = false;
+    private bool isLoadingNoGraphWithHandler = false;
     private bool isLoadingWithGraph = false;
     private bool isLoadingWithGraphForUser = false;
+    private bool isLoadingWithGraphWithHandler = false;
     private ClaimsPrincipal? user;
 
     protected override async Task OnInitializedAsync()
@@ -150,6 +189,21 @@
         finally
         {
             isLoadingNoGraphForApp = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CallAPINoGraphWithHandler()
+    {
+        isLoadingNoGraphWithHandler = true;
+        StateHasChanged();
+        try
+        {
+            noGraphWithHandlerResult = await ApiServiceWithHandler.CallAPINoGraphAsync();
+        }
+        finally
+        {
+            isLoadingNoGraphWithHandler = false;
             StateHasChanged();
         }
     }
@@ -189,6 +243,33 @@
         finally
         {
             isLoadingWithGraphForUser = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CallAPIWithGraphWithHandler()
+    {
+        isLoadingWithGraphWithHandler = true;
+        StateHasChanged();
+        try
+        {
+            withGraphWithHandlerResult = await ApiServiceWithHandler.CallAPIWithGraphAsync(async () =>
+            {
+                NavigationManager.NavigateTo("/Consent/ApiWithGraph", forceLoad: true);
+            });
+        }
+        catch (Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException)
+        {
+            NavigationManager.NavigateTo("/Consent/ApiWithGraph", forceLoad: true);
+            return;
+        }
+        catch (Exception ex)
+        {
+            withGraphWithHandlerResult = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isLoadingWithGraphWithHandler = false;
             StateHasChanged();
         }
     }

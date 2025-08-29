@@ -20,7 +20,6 @@ public class DownstreamApiService
             var result = await _downstreamApi.CallApiForAppAsync("APINoGraph", options =>
             {
                 options.RelativePath = "api/hello";
-                //options.Scopes = new[] { _scope };
             });
             if (result.IsSuccessStatusCode)
             {

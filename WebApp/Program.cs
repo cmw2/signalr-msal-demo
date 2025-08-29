@@ -10,7 +10,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.Configuration = builder.Configuration.GetConnectionString("Redis");
     // options.InstanceName = "cmw2-redis:"; // Optional, for key prefixing
 });
-builder.Services.AddSignalR().AddAzureSignalR(builder.Configuration.GetConnectionString("SignalR"));
+//builder.Services.AddSignalR().AddAzureSignalR(builder.Configuration.GetConnectionString("SignalR"));
 
 // Add services to the container.
 builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration, "AzureAd")
@@ -19,11 +19,26 @@ builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration,
     .AddDownstreamApi("APIWithGraph", builder.Configuration.GetSection("DownstreamApis:APIWithGraph"))
     .AddDistributedTokenCaches();
 
-builder.Services.AddControllersWithViews()
-    .AddMicrosoftIdentityUI();
+builder.Services.AddTransient<AuthorizationHeaderAppHttpHandler>();
+builder.Services.AddTransient<AuthorizationHeaderUserHttpHandler>();
+
 builder.Services.AddHttpClient();
+builder.Services.AddHttpClient("APINoGraphHandler", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["APIEndpoints:APINoGraphBaseUrl"] ?? "https://localhost:7067/");
+}).AddHttpMessageHandler<AuthorizationHeaderAppHttpHandler>();
+
+builder.Services.AddHttpClient("APIWithGraphHandler", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["APIEndpoints:APIWithGraphBaseUrl"] ?? "https://localhost:7087/");
+}).AddHttpMessageHandler<AuthorizationHeaderUserHttpHandler>();
+
 builder.Services.AddScoped<ApiService>();
 builder.Services.AddScoped<DownstreamApiService>();
+builder.Services.AddScoped<ApiServiceWithHandler>();
+
+builder.Services.AddControllersWithViews()
+    .AddMicrosoftIdentityUI();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
