@@ -36,8 +36,7 @@ public class DownstreamApiService
     public async Task<string> CallAPIWithGraphAsync()
     {
         try
-        {
-            var result = await _downstreamApi.CallApiForUserAsync("APIWithGraph", options =>
+        {   var result = await _downstreamApi.CallApiForUserAsync("APIWithGraph", options =>
             {
                 options.RelativePath = "api/profile/mobile-greeting";
             });

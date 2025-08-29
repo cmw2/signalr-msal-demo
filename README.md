@@ -87,7 +87,6 @@ var result = await _downstreamApi.CallApiForUserAsync("APIWithGraph", options =>
 - Built-in Microsoft.Identity.Web abstraction
 - Automatic token acquisition and injection
 - Simplified configuration through `AddDownstreamApi()` in Program.cs
-- Built-in error handling and retry logic
 
 #### 3. Custom MessageHandler Approach  
 **Implementation:** `ApiServiceWithHandler.cs` + `AuthorizationHeaderAppHttpHandler.cs` + `AuthorizationHeaderUserHttpHandler.cs`
